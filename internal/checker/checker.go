@@ -51,10 +51,9 @@ func getAllocation(
 			continue
 		}
 
-		data, ok := response["data"]
 		status, statusOk := response["status"]
 
-		if !ok || !statusOk {
+		if !statusOk || status != "success" {
 			log.Printf("%s | Wrong Response When Parsing Allocation: %s",
 				accountData.LogData, string(resp.Body()))
 			fasthttp.ReleaseRequest(req)
@@ -62,12 +61,11 @@ func getAllocation(
 			continue
 		}
 
-		if statusStr, ok := status.(string); ok && statusStr == "success" {
-			if data == nil {
-				fasthttp.ReleaseRequest(req)
-				fasthttp.ReleaseResponse(resp)
-				return 0
-			}
+		data, dataOk := response["data"]
+		if !dataOk || data == nil {
+			fasthttp.ReleaseRequest(req)
+			fasthttp.ReleaseResponse(resp)
+			return 0
 		}
 
 		dataMap, ok := data.(map[string]interface{})
@@ -79,30 +77,24 @@ func getAllocation(
 			continue
 		}
 
-		if value, ok := dataMap["total_allocated"]; ok {
-			switch v := value.(type) {
-			case float64:
-				fasthttp.ReleaseRequest(req)
-				fasthttp.ReleaseResponse(resp)
-				return v
-			case nil:
-				fasthttp.ReleaseRequest(req)
-				fasthttp.ReleaseResponse(resp)
-				return 0
-			default:
-				log.Printf("%s | Wrong Response When Parsing Allocation: %s",
-					accountData.LogData, string(resp.Body()))
-				fasthttp.ReleaseRequest(req)
-				fasthttp.ReleaseResponse(resp)
-				continue
-			}
-		} else {
-			log.Printf("%s | Wrong Response When Parsing Allocation: %s",
-				accountData.LogData, string(resp.Body()))
+		totalAllocated, ok := dataMap["total_allocated"]
+		if !ok || totalAllocated == nil {
 			fasthttp.ReleaseRequest(req)
 			fasthttp.ReleaseResponse(resp)
-			continue
+			return 0
 		}
+
+		if value, ok := totalAllocated.(float64); ok {
+			fasthttp.ReleaseRequest(req)
+			fasthttp.ReleaseResponse(resp)
+			return value
+		}
+
+		log.Printf("%s | Wrong Response When Parsing Allocation: %s",
+			accountData.LogData, string(resp.Body()))
+		fasthttp.ReleaseRequest(req)
+		fasthttp.ReleaseResponse(resp)
+		continue
 	}
 }
 
