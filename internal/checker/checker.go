@@ -52,13 +52,24 @@ func getAllocation(
 		}
 
 		data, ok := response["data"]
-		if !ok {
+		status, statusOk := response["status"]
+
+		if !ok || !statusOk {
 			log.Printf("%s | Wrong Response When Parsing Allocation: %s",
 				accountData.LogData, string(resp.Body()))
 			fasthttp.ReleaseRequest(req)
 			fasthttp.ReleaseResponse(resp)
 			continue
 		}
+
+		if statusStr, ok := status.(string); ok && statusStr == "success" {
+			if data == nil {
+				fasthttp.ReleaseRequest(req)
+				fasthttp.ReleaseResponse(resp)
+				return 0
+			}
+		}
+
 		dataMap, ok := data.(map[string]interface{})
 		if !ok {
 			log.Printf("%s | Wrong Response When Parsing Allocation: %s",
