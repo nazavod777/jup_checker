@@ -242,7 +242,7 @@ func CheckAccount(accountData types.AccountData) {
 		resultData = accountData.AccountAddress.String()
 	}
 
-	if strings.ToLower(tokenAccountOwner) == strings.ToLower(accountData.AccountAddress.String()) {
+	if tokenAccountOwner == "" || strings.ToLower(tokenAccountOwner) == strings.ToLower(accountData.AccountAddress.String()) {
 		log.Printf("%s | Total Alloaction: %g $JUP | Not Chaned Authority", accountData.LogData, totalAllocation)
 
 		util.AppendFile("without_authority.txt",
