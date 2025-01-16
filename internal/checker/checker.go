@@ -254,11 +254,11 @@ func CheckAccount(accountData types.AccountData) {
 		log.Printf("%s | Total Alloaction: %g $JUP | Not Chaned Authority", accountData.LogData, totalAllocation)
 
 		util.AppendFile("without_authority.txt",
-			fmt.Sprintf("%s | %g $JUP", resultData, totalAllocation))
+			fmt.Sprintf("%s | %g $JUP\n", resultData, totalAllocation))
 	} else {
 		log.Printf("%s | Total Alloaction: %g $JUP | Changed Authority", accountData.LogData, totalAllocation)
 
 		util.AppendFile("with_authority.txt",
-			fmt.Sprintf("%s | %g $JUP", resultData, totalAllocation))
+			fmt.Sprintf("%s | %g $JUP\n", resultData, totalAllocation))
 	}
 }
